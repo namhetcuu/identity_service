@@ -2,6 +2,7 @@ package com.devteria.identityservice.service;
 
 import com.devteria.identityservice.dto.request.UserCreationRequest;
 import com.devteria.identityservice.dto.request.UserUpdateRequest;
+import com.devteria.identityservice.dto.response.UserResponse;
 import com.devteria.identityservice.entity.User;
 import com.devteria.identityservice.exception.AppException;
 import com.devteria.identityservice.exception.ErrorCode;
@@ -30,6 +31,9 @@ public class UserService {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
+        //set password ma user da gui xuong
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
         return userRepository.save(user);
 
     }
@@ -40,19 +44,19 @@ public class UserService {
 
     }
 
-    public User getUser(String id){
+    public UserResponse getUser(String id){
 
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toUserResponse(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found")));
 
     }
 
-    public User updateUser(String userId, UserUpdateRequest request){
+    public UserResponse updateUser(String userId, UserUpdateRequest request){
 
-        User user = getUser(userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         userMapper.updateUser(user,request);
 
-        return userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
 
     }
 
